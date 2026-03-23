@@ -4,3 +4,14 @@ spring:
 
 server:
   port: 8090
+
+document:
+  convert:
+    # 示例：请按部署环境修改为 LibreOffice 实际安装目录
+    office-home: /usr/lib/libreoffice
+    # LibreOffice 运行工作目录（会自动创建）
+    working-dir: /tmp/libreoffice
+    # 单个转换任务最大执行时间（毫秒）
+    task-execution-timeout: 120000
+    # 转换任务最大排队等待时间（毫秒）
+    task-queue-timeout: 30000
