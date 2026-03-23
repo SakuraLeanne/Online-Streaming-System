@@ -16,3 +16,8 @@ document:
     task-execution-timeout: 120000
     # 转换任务最大排队等待时间（毫秒）
     task-queue-timeout: 30000
+
+logging:
+  level:
+    # macOS 下 LibreOffice 会向 stderr 输出非致命系统提示，避免污染 ERROR 日志
+    org.jodconverter.local.office.VerboseProcess: OFF

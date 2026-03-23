@@ -1,10 +1,13 @@
 package com.dhgx.learning.media.document.config;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.jodconverter.core.DocumentConverter;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.office.OfficeManager;
 import org.jodconverter.local.LocalConverter;
 import org.jodconverter.local.office.LocalOfficeManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +36,7 @@ public class OfficeManagerConfig {
     @Bean(initMethod = "start", destroyMethod = "stop")
     public OfficeManager officeManager(DocumentConvertProperties properties) throws OfficeException {
         LocalOfficeManager.Builder builder = LocalOfficeManager.builder();
+        suppressMacOsVerboseProcessNoise();
 
         File officeHome = resolveOfficeHome(properties.getOfficeHome());
         if (officeHome != null) {
@@ -50,6 +54,15 @@ public class OfficeManagerConfig {
         }
 
         return builder.build();
+    }
+
+    private void suppressMacOsVerboseProcessNoise() {
+        String os = System.getProperty("os.name", "").toLowerCase(Locale.ENGLISH);
+        if (!os.contains("mac")) {
+            return;
+        }
+        Logger verboseProcessLogger = (Logger) LoggerFactory.getLogger("org.jodconverter.local.office.VerboseProcess");
+        verboseProcessLogger.setLevel(Level.OFF);
     }
 
     private File ensureDirectory(String path) {
