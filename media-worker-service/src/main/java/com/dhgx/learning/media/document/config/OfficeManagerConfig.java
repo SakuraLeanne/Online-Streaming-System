@@ -84,22 +84,40 @@ public class OfficeManagerConfig {
         if (configured.isFile()) {
             if ("soffice".equals(configured.getName()) || "soffice.bin".equals(configured.getName())) {
                 File parent = configured.getParentFile();
-                return parent == null ? null : parent.getParentFile();
+                if (parent == null) {
+                    return null;
+                }
+                if ("MacOS".equals(parent.getName()) || "program".equals(parent.getName())) {
+                    return parent.getParentFile();
+                }
+                return parent;
             }
             return configured.getParentFile();
         }
 
+        if (new File(configured, "Contents/MacOS/soffice.bin").exists()) {
+            return configured;
+        }
         if (new File(configured, "program/soffice.bin").exists()) {
             return configured;
         }
         if (new File(configured, "MacOS/soffice.bin").exists()) {
+            if ("Contents".equals(configured.getName())) {
+                return configured;
+            }
             return configured.getParentFile();
         }
         if (new File(configured, "soffice.bin").exists()) {
-            return configured.getParentFile();
+            if ("MacOS".equals(configured.getName()) || "program".equals(configured.getName())) {
+                return configured.getParentFile();
+            }
+            return configured;
         }
         if (new File(configured, "soffice").exists()) {
-            return configured.getParentFile();
+            if ("MacOS".equals(configured.getName()) || "program".equals(configured.getName())) {
+                return configured.getParentFile();
+            }
+            return configured;
         }
         return null;
     }
