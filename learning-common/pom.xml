@@ -12,7 +12,7 @@
     <artifactId>learning-common</artifactId>
     <packaging>jar</packaging>
     <name>learning-common</name>
-    <description>公共能力模块：DTO、枚举、错误码、签名验签、对象存储、统一响应</description>
+    <description>公共能力模块</description>
 
     <dependencies>
         <dependency>
