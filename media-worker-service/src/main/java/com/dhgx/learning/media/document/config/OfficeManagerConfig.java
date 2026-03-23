@@ -178,8 +178,9 @@ public class OfficeManagerConfig {
 
         /**
          * 单个任务执行超时时间（毫秒）。
+         * 默认 5 分钟，避免较大 PPT/PPTX 在 2 分钟内来不及完成转换。
          */
-        private Long taskExecutionTimeout = 120000L;
+        private Long taskExecutionTimeout = 300000L;
 
         /**
          * 任务排队超时时间（毫秒）。
