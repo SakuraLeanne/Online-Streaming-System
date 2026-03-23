@@ -51,6 +51,9 @@ public class DocumentConvertServiceImpl implements DocumentConvertService {
         } catch (OfficeException ex) {
             long costMs = System.currentTimeMillis() - start;
             String message = "Failed to convert document by office manager: " + ex.getMessage();
+            if (isTaskExecutionTimeout(ex)) {
+                message = message + ". Consider increasing 'document.convert.task-execution-timeout' or reducing source file complexity";
+            }
             log.error("{} input={}, costMs={}", message, safePath(inputFile), costMs, ex);
             throw new DocumentConvertException(message, ex);
         } catch (Exception ex) {
@@ -108,5 +111,10 @@ public class DocumentConvertServiceImpl implements DocumentConvertService {
 
     private String safePath(File file) {
         return file == null ? "null" : file.getAbsolutePath();
+    }
+
+    private boolean isTaskExecutionTimeout(OfficeException ex) {
+        String message = ex.getMessage();
+        return message != null && message.contains("Task did not complete within timeout");
     }
 }
