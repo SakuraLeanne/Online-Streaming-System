@@ -29,7 +29,7 @@ class DocumentConvertServiceImplIntegrationTest {
     private OfficeManager officeManager;
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws Exception {
         if (officeManager != null) {
             officeManager.stop();
         }
@@ -63,7 +63,7 @@ class DocumentConvertServiceImplIntegrationTest {
         File outputDir = new File("target/document-convert-test-output");
         DocumentConvertResult result = service.convertToPdf(inputFile, outputDir);
 
-        File pdfFile = new File(result.getOutputPath());
+        File pdfFile = new File(result.getOutputFilePath());
         assertTrue(pdfFile.exists(), "转换后的 PDF 文件不存在: " + pdfFile.getAbsolutePath());
         assertTrue(pdfFile.length() > 0, "转换后的 PDF 文件为空: " + pdfFile.getAbsolutePath());
     }
@@ -109,16 +109,43 @@ class DocumentConvertServiceImplIntegrationTest {
         if (!configured.exists()) {
             return null;
         }
-        if (new File(configured, "program/soffice.bin").exists()) {
-            return configured;
+
+        if (configured.isFile()) {
+            if ("soffice".equals(configured.getName()) || "soffice.bin".equals(configured.getName())) {
+                File parent = configured.getParentFile();
+                if (parent == null) {
+                    return null;
+                }
+                if ("MacOS".equals(parent.getName()) || "program".equals(parent.getName())) {
+                    return parent.getParentFile();
+                }
+                return parent;
+            }
+            return configured.getParentFile();
         }
+
         if (new File(configured, "Contents/MacOS/soffice.bin").exists()) {
             return configured;
         }
+        if (new File(configured, "program/soffice.bin").exists()) {
+            return configured;
+        }
+        if (new File(configured, "MacOS/soffice.bin").exists()) {
+            if ("Contents".equals(configured.getName())) {
+                return configured;
+            }
+            return configured.getParentFile();
+        }
         if (new File(configured, "soffice.bin").exists()) {
+            if ("MacOS".equals(configured.getName()) || "program".equals(configured.getName())) {
+                return configured.getParentFile();
+            }
             return configured;
         }
         if (new File(configured, "soffice").exists()) {
+            if ("MacOS".equals(configured.getName()) || "program".equals(configured.getName())) {
+                return configured.getParentFile();
+            }
             return configured;
         }
         return null;
