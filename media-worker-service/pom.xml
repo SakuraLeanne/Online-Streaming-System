@@ -11,7 +11,7 @@
 
     <artifactId>media-worker-service</artifactId>
     <name>media-worker-service</name>
-    <description>独立媒体处理服务：转码、分片、封面抽帧与文档转 PDF</description>
+    <description>独立媒体处理服务</description>
 
     <dependencies>
         <dependency>
@@ -33,6 +33,12 @@
             <artifactId>jodconverter-local</artifactId>
             <version>4.4.8</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -40,6 +46,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
             </plugin>
         </plugins>
     </build>
