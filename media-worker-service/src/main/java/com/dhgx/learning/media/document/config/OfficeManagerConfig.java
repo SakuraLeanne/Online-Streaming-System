@@ -1,12 +1,14 @@
 package com.dhgx.learning.media.document.config;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import com.dhgx.learning.media.document.exception.DocumentConvertException;
 import org.jodconverter.core.DocumentConverter;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.office.OfficeManager;
 import org.jodconverter.local.LocalConverter;
 import org.jodconverter.local.office.LocalOfficeManager;
+import org.jodconverter.office.OfficeException;
+import org.jodconverter.office.OfficeManager;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +29,8 @@ import java.util.Locale;
 @Configuration
 public class OfficeManagerConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(OfficeManagerConfig.class);
+
     @Bean
     @ConfigurationProperties(prefix = "document.convert")
     public DocumentConvertProperties documentConvertProperties() {
@@ -43,9 +47,9 @@ public class OfficeManagerConfig {
             builder.officeHome(officeHome);
         }
 
-        if (properties.getWorkingDir() != null && !properties.getWorkingDir().trim().isEmpty()) {
-            builder.workingDir(ensureDirectory(properties.getWorkingDir()));
-        }
+        File workingDir = resolveWorkingDir(properties.getWorkingDir());
+        builder.workingDir(workingDir);
+
         if (properties.getTaskExecutionTimeout() != null) {
             builder.taskExecutionTimeout(properties.getTaskExecutionTimeout());
         }
@@ -159,6 +163,28 @@ public class OfficeManagerConfig {
     @Bean
     public DocumentConverter documentConverter(OfficeManager officeManager) {
         return LocalConverter.make(officeManager);
+    }
+
+    private File resolveWorkingDir(String configuredWorkingDir) {
+        File workingDir;
+        if (configuredWorkingDir == null || configuredWorkingDir.trim().isEmpty()) {
+            workingDir = new File(System.getProperty("java.io.tmpdir"), "libreoffice");
+        } else {
+            workingDir = new File(configuredWorkingDir);
+        }
+
+        if (!workingDir.exists()) {
+            boolean created = workingDir.mkdirs();
+            if (!created) {
+                throw new DocumentConvertException("Failed to create office working directory: " + workingDir.getAbsolutePath());
+            }
+            log.info("Created office working directory: {}", workingDir.getAbsolutePath());
+        }
+
+        if (!workingDir.isDirectory()) {
+            throw new DocumentConvertException("Office working path is not a directory: " + workingDir.getAbsolutePath());
+        }
+        return workingDir;
     }
 
     /**
